@@ -1,19 +1,30 @@
 from flask import Flask
 from flask_cors import CORS
-from .routes.health import blp
 from flask_smorest import Api
 
+from .routes.health import blp
+from .services.db import init_db
 
+# Create and configure Flask app
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+# CORS - allow all origins for now; refine later if needed
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+# OpenAPI / API documentation configuration
 app.config["API_TITLE"] = "My Flask API"
 app.config["API_VERSION"] = "v1"
 app.config["OPENAPI_VERSION"] = "3.0.3"
-app.config['OPENAPI_URL_PREFIX'] = '/docs'
+app.config["OPENAPI_URL_PREFIX"] = "/docs"
 app.config["OPENAPI_SWAGGER_UI_PATH"] = ""
 app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
+# Initialize MongoDB (reads MONGODB_URL and MONGODB_DB from environment)
+# This will raise a RuntimeError if these variables are missing, making the
+# failure explicit during startup.
+init_db(app)
 
+# Register API with flask-smorest and blueprints
 api = Api(app)
 api.register_blueprint(blp)
