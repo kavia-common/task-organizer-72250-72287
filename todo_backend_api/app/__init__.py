@@ -3,6 +3,15 @@ from flask_cors import CORS
 from flask_smorest import Api
 import os
 
+# Load environment variables from a .env file if present (non-production friendly).
+# This avoids hardcoding and enables consistent config across environments.
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv()  # do not override existing env
+except Exception:
+    # If python-dotenv is not installed, ignore; env must be provided by container.
+    pass
+
 from .routes.health import blp as health_blp
 from .routes.auth import blp as auth_blp
 from .routes.tasks import blp as tasks_blp
@@ -27,7 +36,7 @@ app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-
 # Do not hardcode secrets; JWT_SECRET must be provided in environment or .env.
 jwt_secret = os.getenv("JWT_SECRET")
 if not jwt_secret:
-    raise RuntimeError("JWT_SECRET is not set. Please set it in the environment.")
+    raise RuntimeError("JWT_SECRET is not set. Please set it in the environment or .env file.")
 app.config["JWT_SECRET"] = jwt_secret
 # Optional expiration hours (default 24); used by routes/auth.py helper
 app.config["JWT_EXPIRES_HOURS"] = int(os.getenv("JWT_EXPIRES_HOURS", "24"))
