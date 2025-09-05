@@ -5,6 +5,7 @@ import os
 
 from .routes.health import blp as health_blp
 from .routes.auth import blp as auth_blp
+from .routes.tasks import blp as tasks_blp
 from .services.db import init_db
 
 # Create and configure Flask app
@@ -40,3 +41,4 @@ init_db(app)
 api = Api(app)
 api.register_blueprint(health_blp)
 api.register_blueprint(auth_blp)
+api.register_blueprint(tasks_blp)
